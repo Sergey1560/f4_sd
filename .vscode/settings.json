@@ -4,6 +4,9 @@
     "files.associations": {
         "main.h": "c",
         "diskio.h": "c",
-        "sdio.h": "c"
+        "sdio.h": "c",
+        "rcc.h": "c",
+        "log.h": "c",
+        "dwt.h": "c"
     },
 }

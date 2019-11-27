@@ -14,6 +14,13 @@ BUILD_DIR = build
 C_SOURCES =  \
 Source/src/main.c \
 Lib/MyLib/rcc.c \
+Lib/MyLib/dwt.c \
+Lib/MyLib/hardfault.c \
+Lib/Segger/SEGGER_RTT_Syscalls_GCC.c \
+Lib/Segger/SEGGER_RTT_printf.c \
+Lib/Segger/SEGGER_RTT.c \
+Lib/Segger/SEGGER_SYSVIEW_Config_NoOS.c \
+Lib/Segger/SEGGER_SYSVIEW.c \
 Lib/CMSIS/src/system_stm32f4xx.c \
 Lib/FATFs/ffsystem.c \
 Lib/FATFs/ffunicode.c \
@@ -33,11 +40,12 @@ endif
 
 ifeq ($(CPU_VER), 407)
 ASM_SOURCES =  \
-Startup/startup_stm32f407xx.s
+Startup/startup_stm32f429xx.s \
+Lib/Segger/SEGGER_RTT_ASM_ARMv7M.s
 C_DEFS =  \
--DSTM32F407xx
+-DSTM32F429xx
 # link script
-LDSCRIPT = Startup/STM32F407VG_FLASH.ld
+LDSCRIPT = Startup/STM32F429VG_FLASH.ld
 endif
 
 
@@ -73,6 +81,7 @@ C_INCLUDES =  \
 -ILib/FATFs \
 -ILib/fatfs_conf \
 -ISource/inc \
+-ILib/Segger \
 -IStartup
 
 

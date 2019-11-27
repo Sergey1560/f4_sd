@@ -29,6 +29,7 @@ void RCC_init(void){
 	while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08) {};
 
 	SystemCoreClockUpdate();
+	INFO("SystemCoreClock %d",SystemCoreClock);
 }
 
 

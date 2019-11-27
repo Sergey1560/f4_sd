@@ -7,7 +7,7 @@
                 "label": "Build",
                 "type": "shell",
                 "group": "build",
-                "command": "make",
+                "command": "make -j 10",
                 "problemMatcher": [
                     "$gcc"
                 ]
@@ -25,20 +25,39 @@
                 "label": "Flash ST",
                 "type": "shell",
                 "group": "build",
-                "command": "~/soft/STMicroelectronics/STM32CubeProgrammer/bin/STM32_Programmer_CLI -c port=SWD -d build/sdtest.elf -hardRst",
+                "command": "~/soft/STMicroelectronics/STM32CubeProgrammer/bin/STM32_Programmer_CLI -c port=SWD -d build/sdtest.elf -rst",
                 "problemMatcher": [
                     "$gcc"
                 ]
         },
             {
-                "label": "Flash OpenOCD",
+                "label": "Flash OpenOCD STlink",
                 "type": "shell",
                 "group": "build",
-                "command": "openocd -f ./stm32f4discovery.cfg -c \"init\" -c \"reset init\" -c \"flash write_image erase build/sdtest.hex\" -c \"reset\" -c \"shutdown\"",
+                "command": "openocd -f ./stlinkv2.cfg -c \"init\" -c \"reset init\" -c \"flash write_image erase build/sdtest.hex\" -c \"reset\" -c \"shutdown\"",
                 "problemMatcher": [
                     "$gcc"
                 ]
-        }
+        },
+        {
+            "label": "Flash OpenOCD JLink",
+            "type": "shell",
+            "group": "build",
+            "command": "openocd -f ./jlink.cfg -c \"init\" -c \"reset init\" -c \"flash write_image erase build/dash.hex\" -c \"reset\" -c \"shutdown\"",
+            "problemMatcher": [
+                "$gcc"
+            ]
+    },
+    {
+        "label": "Ozone",
+        "type": "shell",
+        "group": "build",
+        "command": "Ozone ./ozone.jdebug",
+        "problemMatcher": [
+            "$gcc"
+        ]
+}
+
 
     ]
 }

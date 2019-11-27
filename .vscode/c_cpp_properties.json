@@ -10,29 +10,11 @@
                 "${workspaceFolder}/Lib/FATFs",
                 "${workspaceFolder}/Lib/fatfs_conf",
                 "${workspaceFolder}/Source/inc",
-                "${workspaceFolder}/Source/src"
+                "${workspaceFolder}/Source/src",
+                "${workspaceFolder}/Lib/Segger"
             ],
             "defines": [
                 "STM32F429xx"
-            ],
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x64"
-        },
-        {
-            "name": "STM32F407",
-            "compilerPath": "~/soft/gcc-arm-none-eabi-8-2018-q4-major/bin/arm-none-eabi-gcc",
-            "includePath": [
-                "${workspaceFolder}/Lib/CMSIS/inc",
-                "${workspaceFolder}/Lib/CMSIS/src",
-                "${workspaceFolder}/Lib/MyLib",
-                "${workspaceFolder}/Lib/FATFs",
-                "${workspaceFolder}/Lib/fatfs_conf",
-                "${workspaceFolder}/Source/inc",
-                "${workspaceFolder}/Source/src"
-            ],
-            "defines": [
-                "STM32F407xx"
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",
