@@ -35,11 +35,13 @@ SOFTWARE.
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = 0x20030000;    /* end of 192K RAM */
+/* _estack = 0x20030000;    /* end of 192K RAM */
+_estack = 0x10010000;    /* end of 192K RAM */
+
 
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
-_Min_Stack_Size = 0x400; /* required amount of stack */
+_Min_Stack_Size = 0x2000; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
@@ -123,6 +125,8 @@ SECTIONS
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
+    *(.codedata)       /* .data sections */
+    *(.codedata*)      /* .data* sections */
     *(.data)           /* .data sections */
     *(.data*)          /* .data* sections */
 
@@ -174,7 +178,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(4);
-  } >RAM
+  } >CCMRAM
 
   /* MEMORY_bank1 section, code must be located here explicitly            */
   /* Example: extern int foo(void) __attribute__ ((section (".mb1text"))); */

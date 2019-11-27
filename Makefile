@@ -6,7 +6,7 @@ CPU_VER = 429
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -O0 -g -Wall -fstack-usage -fdump-rtl-dfinish
+OPT = -O2 -g -Wall -fstack-usage -fdump-rtl-dfinish
 # Build path
 BUILD_DIR = build
 

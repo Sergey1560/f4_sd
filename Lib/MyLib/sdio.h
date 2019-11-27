@@ -174,31 +174,16 @@ typedef struct {
 	uint8_t			ake_seq_error;   //Ошибка в последовательности аутентификации.
 } SD_Status_TypeDef;
 
-/*
-extern volatile uint32_t dio_read_call;
-extern volatile uint32_t dio_read_fail;
-
-extern volatile uint32_t dio_write_call;
-extern volatile uint32_t dio_write_fail;
-
-extern volatile uint32_t dio_int_call;
-extern volatile uint32_t dio_func_call;
-*/
 
 void SDIO_gpio_init(void);
 uint8_t SD_Init(void);
 uint8_t SD_Cmd(uint8_t cmd, uint32_t arg, uint16_t response_type, uint32_t *response);
 uint32_t SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_t dir);
-//void SD_simple_read(uint8_t *buf, uint32_t blk);
 void SD_check_status(SD_Status_TypeDef* SDStatus,uint32_t* reg);
 void SD_parse_CSD(uint32_t* reg);
 uint32_t SD_get_block_count(void);
 uint8_t sd_get_cardsize(void);
 uint8_t SD_HighSpeed(void);
 uint8_t SD_CmdSwitch(uint32_t argument, uint8_t *resp);
-//uint8_t SD_present(void);
-//void SD_Present_init(void);
-//void SD_IRQ_Hndl(void);
-
 	
 #endif

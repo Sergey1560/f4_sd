@@ -76,7 +76,20 @@ defined in linker script */
   .type  Reset_Handler, %function
 Reset_Handler: 
   ldr   sp, =_estack       /* set stack pointer */
- 
+
+  
+  ldr r0, =_estack
+  sub r0, #4
+  ldr r1, = _Min_Stack_Size
+  sub r3,r0,r1
+  ldr r2, =0x6B6B6B6B
+
+Clear_Stack:
+  str r2, [r0, #0]
+  sub r0, #4
+  cmp r3, r0
+  ble Clear_Stack
+
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
   b  LoopCopyDataInit
@@ -123,9 +136,25 @@ LoopFillZerobss:
 */
     .section  .text.Default_Handler,"ax",%progbits
 Default_Handler:
-Infinite_Loop:
-  b  Infinite_Loop
+  /* Load the address of the interrupt control register into r3. */
+  ldr r3, NVIC_INT_CTRL_CONST
+  /* Load the value of the interrupt control register into r2 from the
+  address held in r3. */
+  ldr r2, [r3, #0]
+  /* The interrupt number is in the least significant byte - clear all
+  other bits. */
+  uxtb r2, r2
+  TST LR, #4  
+  ITE EQ  
+  MRSEQ R0, MSP  
+  MRSNE R0, PSP  
+  Infinite_Loop:
+  b  hard_fault_handl_c
   .size  Default_Handler, .-Default_Handler
+
+.align 4
+/* The address of the NVIC interrupt control register. */
+NVIC_INT_CTRL_CONST: .word 0xe000ed04
 /******************************************************************************
 *
 * The minimal vector table for a Cortex M3. Note that the proper constructs

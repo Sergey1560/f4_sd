@@ -1,27 +1,7 @@
 #include "hardfault.h"
 
-// hard fault handler in C,
-// with stack frame location as input parameter
-// called from HardFault_Handler in file xxx.s
-/*
-void HardFault_Handler(void)
-{
-asm volatile(  
-"movs r0, #4\t\n"  
-"mov  r1, lr\t\n"  
-"tst  r0, r1\t\n" 
-"beq 1f\t\n"  
-"mrs r0, psp\t\n"  
-"ldr r1,=hard_fault_handl_c\t\n"  
-"bx r1\t\n"  
-"1:mrs r0,msp\t\n"  
-"ldr r1,=hard_fault_handl_c\t\n"  
-:
-:
-: "r0" 
-);  
-}
-*/
+uint8_t stop_var = 0;
+
 void __attribute__((optimize("O0"))) hard_fault_handl_c (unsigned int * hardfault_args){
   
   unsigned int stacked_r0;
@@ -59,7 +39,9 @@ void __attribute__((optimize("O0"))) hard_fault_handl_c (unsigned int * hardfaul
   printf ("AFSR = %lx\n", (*((volatile unsigned long *)(0xE000ED3C))));
   printf ("SCB_SHCSR = %lx\n", SCB->SHCSR);
   
-  while (1);
+  while (!stop_var){
+    __NOP();
+  };
 }
 
 

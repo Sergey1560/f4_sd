@@ -1,14 +1,5 @@
 #include "sdio.h"
 
-//volatile uint32_t dio_read_call=0;
-//volatile uint32_t dio_read_fail=0;
-
-//volatile uint32_t dio_write_call=0;
-//volatile uint32_t dio_write_fail=0;
-
-//volatile uint32_t dio_int_call=0;
-//volatile uint32_t dio_func_call=0;
-
 volatile SDCard_TypeDef SDCard;
 volatile SD_Status_TypeDef SDStatus;
 
@@ -63,18 +54,13 @@ uint8_t CODEINRAM SD_Cmd(uint8_t cmd, uint32_t arg, uint16_t response_type, uint
 	return 0;
 }
 
-//uint32_t __attribute__((optimize("O1"))) SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_t dir){
-uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_t dir){
 
+uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_t dir){
 	volatile uint8_t cmd=0;
-	//volatile uint8_t wait_state=0;
-	
-	//SEGGER_SYSVIEW_RecordVoid(37);
 
 	trials=SDIO_DATA_TIMEOUT;
 	while (transmit && trials--) {};
 	if(!trials) {
-		//SEGGER_SYSVIEW_RecordEndCall(37);
 		return 1;
 		}
 
@@ -98,12 +84,9 @@ uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_
 				memcpy((uint8_t*)buf_copy,buf,cnt*512);
 				DMA2_Stream3->CR|=(0x01 << DMA_SxCR_DIR_Pos);
 				cmd=(cnt == 1)? SD_CMD24 : SD_CMD25;
-				//wait_state=6;
 			} 
 	else if (dir==SD2UM){ //Чтение
-				//DMA2_Stream3->CR|=(0x00 << DMA_SxCR_DIR_Pos);  - ноль записывать не надо
 				cmd=(cnt == 1)? SD_CMD17 : SD_CMD18;
-				//wait_state=5;
 			};
 
 	DMA2_Stream3->M0AR=(uint32_t)&buf_copy;    //Memory address	
@@ -134,14 +117,12 @@ uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_
 		SDIO->ICR = SDIO_ICR_STATIC;
 		DMA2_Stream3->CR = 0;
 		DMA2->LIFCR = DMA_S3_CLEAR;
-		//SEGGER_SYSVIEW_RecordEndCall(37);
 		return error_flag;
 	}
 	
 	if(dir==SD2UM) { //Read
 		while (DMA2_Stream3->CR & DMA_SxCR_EN) {
 			if(SDIO->STA & SDIO_STA_ERRORS)	{
-				//SEGGER_SYSVIEW_RecordEndCall(37);
 				return 99;
 			}
 				DMA2_Stream3->CR = 0;
@@ -153,7 +134,6 @@ uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_
 	if(multiblock > 0) SD_Cmd(SD_CMD12, 0, SDIO_RESP_SHORT, (uint32_t*)response);
 	transmit=0;		
 	DMA2->LIFCR = DMA_S3_CLEAR;
-	//SEGGER_SYSVIEW_RecordEndCall(37);
 	return 0;	
 };
 
@@ -167,12 +147,9 @@ uint8_t sd_get_cardsize(void){
 	return 0;
 };
 
-//#pragma GCC push_options
-//#pragma GCC optimize ("O0")
 uint8_t SD_Init(void) {
 	volatile uint32_t trials = 0x0000FFFF;
 	uint32_t tempreg;   //Для временного хранения регистров
-	//char str[30];
 	uint8_t result = 0;
 	
 	result = SD_Cmd(SD_CMD0,0x00,SDIO_RESP_NONE,(uint32_t*)response);  //NORESP
@@ -288,7 +265,7 @@ uint8_t SD_Init(void) {
 	#endif
 	return 0;
 };
-//#pragma GCC pop_options
+
 
 void CODEINRAM SD_check_status(SD_Status_TypeDef* SDStatus,uint32_t* reg){
 	SDStatus->ake_seq_error     = (*reg & (1 << 3)) ? 1 : 0;
@@ -383,47 +360,6 @@ uint8_t SD_present(void){
 	//if(GPIOD->IDR & GPIO_IDR_ID6) return 1;
 	return 0;
 };
-
-/*
-void SD_Present_init(void){
-
-	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;  
-	SYSCFG->EXTICR[1] |= SYSCFG_EXTICR2_EXTI6_PD; 
-	//Прерывание по падению и подъему уровня на ноге PD6
-	EXTI->FTSR 	|= EXTI_FTSR_TR6;
-	EXTI->RTSR 	|= EXTI_RTSR_TR6;
-	
-	NVIC_EnableIRQ (EXTI9_5_IRQn);
-	NVIC_SetPriority (EXTI9_5_IRQn, 6);
-	
-	EXTI->IMR |= EXTI_IMR_MR6;
-
-	//программно вызвать прерывание, чтобы отработать состояние после загрузки
-	//EXTI->SWIER |= EXTI_SWIER_SWIER6;
-};
-*/
-/*
-void SD_IRQ_Hndl(void){
-
-		EXTI->PR = EXTI_PR_PR6;
-
-		if( (get_ms() - SD_debouce) > 100){ //Задержка повторного срабатывания
-			EXTI->IMR &= ~EXTI_IMR_MR6; //Отключение на время работы
-			
-			Deinit_SD_card();  //Если было прерывание, в любом случае надо перемонтировать карту
-			
-			if(SD_present()){  //Если карты нет, событие вынимания
-					FATFS_result = FR_NOT_READY;
-			}else{             //Карта появилась
-				  Init_SD_card();
-			};
-			
-			SD_debouce=get_ms();
-			EXTI->IMR |= EXTI_IMR_MR6;	
-		};
-	
-};
-*/
 
 
 // Issue SWITCH_FUNC command (CMD6)
@@ -536,39 +472,3 @@ uint8_t SD_HighSpeed(void) {
 	
 	return 0;
 }
-
-//Чтение одного блока в буфер
-void SD_simple_read(uint8_t *buf, uint32_t blk){
-	uint32_t* big_buf=(uint32_t*)buf;
-	
-	trials=0xFFFFFF;
-	while (--trials) if ((SDIO->STA & (SDIO_STA_RXACT | SDIO_STA_TXACT )) == 0) trials=1;
-
-	state=0;
-	while(state != 4){ 	//Дождаться когда карта будет в режиме tran (4)
-		SD_Cmd(SD_CMD13, SDCard.RCA ,SDIO_RESP_SHORT,(uint32_t*)response); 
-		SD_check_status((SD_Status_TypeDef*)&SDStatus,(uint32_t*)&response[0]);
-		state=SDStatus.current_state;
-	};
-
-	SDIO->MASK = 0;
-	SDIO->DTIMER=(uint32_t) SDIO_DATA_TIMEOUT;
-	SDIO->DLEN=512;    //Количество байт (блок 512 байт)
-	SDIO->DCTRL = (9 << SDIO_DCTRL_DBLOCKSIZE_Pos) | (1 << SDIO_DCTRL_DTDIR_Pos); 
-
-	//SDIO->DCTRL |= SDIO_DCTRL_RWMOD;
-	SDIO->DCTRL |= SDIO_DCTRL_RWSTART;
-
-	SDIO->ICR=SDIO_ICR_STATIC;
-	
-	SDIO->DCTRL|=1; //DPSM is enabled
-
-	SD_Cmd(SD_CMD17, blk, SDIO_RESP_SHORT,(uint32_t*)response);
-	SDIO->ICR=SDIO_ICR_STATIC;
-
-	while (!(SDIO->STA & SDIO_STA_ERRORS)){
-		if (SDIO->STA & SDIO_STA_RXDAVL)*big_buf++=SDIO->FIFO;
-	} 
-	while(SDIO->STA & SDIO_STA_RXDAVL) *big_buf++=SDIO->FIFO;
-};
-

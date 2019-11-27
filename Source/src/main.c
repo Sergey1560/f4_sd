@@ -14,6 +14,8 @@ uint32_t sd_speed=0;
 
 int main(void){
 
+	uint8_t *p;
+
 	INFO("System start");
 	RCC_init();
 
