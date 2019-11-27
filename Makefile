@@ -14,7 +14,12 @@ BUILD_DIR = build
 C_SOURCES =  \
 Source/src/main.c \
 Lib/MyLib/rcc.c \
-Lib/CMSIS/src/system_stm32f4xx.c
+Lib/CMSIS/src/system_stm32f4xx.c \
+Lib/FATFs/ffsystem.c \
+Lib/FATFs/ffunicode.c \
+Lib/FATFs/ff.c \
+Lib/MyLib/sdio.c \
+Lib/fatfs_conf/diskio.c
 
 # ASM sources
 ifeq ($(CPU_VER), 429)
@@ -65,6 +70,8 @@ AS_INCLUDES =
 C_INCLUDES =  \
 -ILib/CMSIS/inc \
 -ILib/MyLib \
+-ILib/FATFs \
+-ILib/fatfs_conf \
 -ISource/inc \
 -IStartup
 

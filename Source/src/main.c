@@ -1,47 +1,67 @@
-#include "stm32f4xx.h"
-#include "rcc.h"
+#include "main.h"
 
-volatile uint8_t led_on=0;
+FRESULT result;
+volatile FATFS FATFS_Obj;
+volatile FIL file;
+unsigned int nWritten;
 
-void timer2_init(void){
-	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-	TIM2->PSC = (uint16_t)((TIM2_CLK/2)/1000)/1000 - 1;
-	TIM2->ARR = (1000 )*1000 - 1; 		//2000 - 1sec, Вкл-выкл, 0.5 секунды задержка
-	TIM2->DIER |= TIM_DIER_UIE;
-	TIM2->CR1 |= TIM_CR1_CEN;
-	
-	NVIC_EnableIRQ(TIM2_IRQn);
-	NVIC_SetPriority (TIM2_IRQn, 5);
-}
+char file_name[200];
 
-void TIM2_IRQHandler(void)
-{
-	if(TIM2->SR & TIM_SR_UIF)	TIM2->SR &= ~TIM_SR_UIF; 
-
-	if(led_on){
-		GPIOD->BSRR = GPIO_BSRR_BR14;
-		led_on=0;
-	}else{
-		GPIOD->BSRR = GPIO_BSRR_BS14;
-		led_on=1;
-	}
-}
-
-
+uint8_t data[DATA_SIZE];
+uint8_t indata[DATA_SIZE];
 
 int main(void){
 
 	RCC_init();
+	memset((uint8_t *)data,0xAA,DATA_SIZE);
 
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
-	GPIOD->MODER |= GPIO_MODER_MODE14_0;
-	GPIOD->OSPEEDR |= (2 << GPIO_OSPEEDR_OSPEED14_Pos);
-	GPIOD->PUPDR |= GPIO_PUPDR_PUPD14_1; //Pull down
+	result = f_mount((FATFS *)&FATFS_Obj, "0", 1);
+	if(result != FR_OK){
+		while(1);
+	}
 
-	timer2_init();
+	sprintf(file_name,"test_file.bin");
+	result = f_open((FIL*)&file, (char *)file_name, FA_CREATE_ALWAYS | FA_WRITE );
+	if(result != FR_OK) {
+		while(1);
+	}
+	
+	for(uint32_t i=0; i<320; i++){
+		result=f_write((FIL*)&file, (uint8_t *)data, DATA_SIZE, &nWritten);	
+		if(result != FR_OK) {
+			while(1);
+		};
+		result=f_sync((FIL*)&file);
+		if(result != FR_OK) {
+			while(1);
+		};
+	};
+	
+	f_close((FIL*)&file);
+	
+	result = f_open((FIL*)&file, (char *)file_name, FA_READ);
+	if(result != FR_OK) {
+		while(1);
+	}
 
-	while(1){
+	for(uint32_t i=0; i<320; i++){
+	
+		memset((uint8_t *)indata,0x00,DATA_SIZE);
+		result=f_read((FIL*)&file, (uint8_t *)indata, DATA_SIZE, &nWritten);	
+		
+		if(memcmp((uint8_t*)data,(uint8_t *)indata,DATA_SIZE)){
+			while(1);
+		}
+
+		if(result != FR_OK) {
+			while(1);
+		};
 	};
 
+
+
+	while(1){
+		memset((uint8_t *)data,0xAA,DATA_SIZE);
+	};
 
 }

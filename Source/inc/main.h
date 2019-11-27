@@ -1,3 +1,10 @@
 #include "stm32f4xx.h"
+#include <stdlib.h>
+#include "stdio.h"
+#include "strings.h"
+#include "rcc.h"
+#include "sdio.h"
+#include "ff.h"
 
-#define TIM6_CLK 84000000UL
+#define DATA_SIZE 32*1024
+

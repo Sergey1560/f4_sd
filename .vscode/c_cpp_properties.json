@@ -7,8 +7,10 @@
                 "${workspaceFolder}/Lib/CMSIS/inc",
                 "${workspaceFolder}/Lib/CMSIS/src",
                 "${workspaceFolder}/Lib/MyLib",
+                "${workspaceFolder}/Lib/FATFs",
+                "${workspaceFolder}/Lib/fatfs_conf",
                 "${workspaceFolder}/Source/inc",
-                "${workspaceFolder}/Source"
+                "${workspaceFolder}/Source/src"
             ],
             "defines": [
                 "STM32F429xx"
@@ -24,8 +26,10 @@
                 "${workspaceFolder}/Lib/CMSIS/inc",
                 "${workspaceFolder}/Lib/CMSIS/src",
                 "${workspaceFolder}/Lib/MyLib",
+                "${workspaceFolder}/Lib/FATFs",
+                "${workspaceFolder}/Lib/fatfs_conf",
                 "${workspaceFolder}/Source/inc",
-                "${workspaceFolder}/Source"
+                "${workspaceFolder}/Source/src"
             ],
             "defines": [
                 "STM32F407xx"
