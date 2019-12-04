@@ -49,7 +49,7 @@ LDSCRIPT = Startup/STM32F429VG_FLASH.ld
 endif
 
 
-GCC_PATH = /home/sergey/soft/gcc-arm-none-eabi-8-2018-q4-major/bin
+GCC_PATH = /home/sergey/soft/gcc-arm-none-eabi-9-2019-q4-major/bin
 
 PREFIX = arm-none-eabi-
 ifdef GCC_PATH

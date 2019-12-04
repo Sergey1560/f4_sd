@@ -57,6 +57,7 @@ uint8_t CODEINRAM SD_Cmd(uint8_t cmd, uint32_t arg, uint16_t response_type, uint
 
 uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_t dir){
 	volatile uint8_t cmd=0;
+	uint8_t *ptr= buf;
 
 	trials=SDIO_DATA_TIMEOUT;
 	while (transmit && trials--) {};
@@ -81,7 +82,11 @@ uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_
 
 	multiblock = (cnt == 1) ? 0 : 1;
 	if (dir==UM2SD){ //Запись
-				memcpy((uint8_t*)buf_copy,buf,cnt*512);
+				if(((uint32_t)buf % 4) != 0){
+					DEBUG("Buffer not aligned");
+					memcpy((uint8_t*)buf_copy,buf,cnt*512);
+					ptr=(uint8_t*)buf_copy;    
+				};
 				DMA2_Stream3->CR|=(0x01 << DMA_SxCR_DIR_Pos);
 				cmd=(cnt == 1)? SD_CMD24 : SD_CMD25;
 			} 
@@ -89,7 +94,7 @@ uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_
 				cmd=(cnt == 1)? SD_CMD17 : SD_CMD18;
 			};
 
-	DMA2_Stream3->M0AR=(uint32_t)&buf_copy;    //Memory address	
+	DMA2_Stream3->M0AR=(uint32_t)ptr;
 	DMA2_Stream3->PAR=(uint32_t)&(SDIO->FIFO);  //SDIO FIFO Address 
 	DMA2_Stream3->NDTR=0;   //Peripheral controls, therefore we don't need to indicate a size
 	DMA2_Stream3->FCR=DMA_SDIO_FCR;
@@ -128,7 +133,11 @@ uint32_t CODEINRAM SD_transfer(uint8_t *buf, uint32_t blk, uint32_t cnt, uint32_
 				DMA2_Stream3->CR = 0;
 				DMA2->LIFCR = DMA_S3_CLEAR;
 			};
-		memcpy(buf,(uint8_t*)buf_copy,cnt*512);
+		
+		if(((uint32_t)buf % 4) != 0){	
+			memcpy(buf,(uint8_t*)buf_copy,cnt*512);
+		}
+	
 	};
 
 	if(multiblock > 0) SD_Cmd(SD_CMD12, 0, SDIO_RESP_SHORT, (uint32_t*)response);

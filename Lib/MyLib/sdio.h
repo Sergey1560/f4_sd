@@ -3,6 +3,7 @@
 #include "stm32f4xx.h"
 #include <string.h>
 #include "clocks.h"
+#include "log.h"
 
 //https://github.com/yigiter/Sample-STM32F4-codes/blob/master/SDIOLib/src/SDIO.c
 //https://github.com/LonelyWolf/stm32/blob/master/stm32l4-sdio/src/sdcard.c
@@ -12,7 +13,7 @@
 
 #define SDIO_WAIT_WRITE		(uint8_t)1
 
-#define TMP_BUF_SIZE	64*1024    //SD Transfer copy buffer
+#define TMP_BUF_SIZE	33*1024    //SD Transfer copy buffer
 
 #define GPIO_SPEED_LO (uint32_t)0
 #define GPIO_SPEED_MI (uint32_t)1
