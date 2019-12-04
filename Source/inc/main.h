@@ -8,7 +8,7 @@
 #include "log.h"
 
 
-#define DATA_SIZE 32*1024
-#define WRITE_COUNT 30
+#define DATA_SIZE 70*1024
+#define WRITE_COUNT 255
 
 

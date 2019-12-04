@@ -10,12 +10,9 @@ FATFS FATFS_Obj;
 uint8_t ALGN4 data[DATA_SIZE]; 
 uint32_t clk_count;
 uint32_t data_size=0;
-uint32_t sd_speed=0;
+float sd_speed;
 
 int main(void){
-
-	uint8_t *p;
-
 	INFO("System start");
 	RCC_init();
 
@@ -35,7 +32,7 @@ int main(void){
 	data_size=0;
 	/* WRITE_COUNT раз пишет в файл кусками по DATA_SIZE Кб */
 	for(uint32_t i=0; i<WRITE_COUNT; i++){
-		memset(data,0x30+i,DATA_SIZE);
+		memset(data,i,DATA_SIZE);
 		result=f_write((FIL*)&file, (uint8_t *)data, DATA_SIZE, (UINT *)&nBytes);	
 		if(result != FR_OK) {
 			ERROR("f_write fail: %d",result);
@@ -58,8 +55,8 @@ int main(void){
 		return result;
 	}
 	
-	sd_speed = data_size*1000/dwt_get_diff_sec(clk_count);
-	INFO("Write to file done in %d ms, speed %ld byte/sec", dwt_get_diff_sec(clk_count),sd_speed);
+	sd_speed = (float)data_size/(float)dwt_get_diff_sec(clk_count);
+	INFO("Write to file done in %d bytes in %d ms, speed %d Kbyte/sec", data_size, dwt_get_diff_sec(clk_count),(uint32_t)sd_speed);
 
 	/* Чтение обратно, проверка записанного */
 
@@ -84,7 +81,7 @@ int main(void){
 		}
 		data_size+=nBytes;
 		for(uint32_t k=0; k<DATA_SIZE; k++){
-			if(data[k] != 0x30+i){
+			if(data[k] != i){
 				ERROR("Pattern %d error, offset %d",i,k);
 			}
 		}
@@ -95,8 +92,8 @@ int main(void){
 		return result;
 	}
 	
-	sd_speed = data_size*1000/dwt_get_diff_sec(clk_count);
-	INFO("Read from file done in %d ms, speed %ld byte/sec", dwt_get_diff_sec(clk_count),sd_speed);
+	sd_speed = (float)data_size/(float)dwt_get_diff_sec(clk_count);
+	INFO("Read from file done in %d bytes in %d ms, speed %d Kbyte/sec", data_size, dwt_get_diff_sec(clk_count),(uint32_t)sd_speed);
 
 
 	while(1){
